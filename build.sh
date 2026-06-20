@@ -109,10 +109,16 @@ cmake .. \
 echo "[Make] 多线程编译项目..."
 make -j$(nproc)
 
-if [ ! -f "$BINARY_FULL_PATH" ]; then
-    echo "ERROR: 编译失败，未生成目标二进制 $BINARY_FULL_PATH"
+# 自动检索生成的可执行文件，不再硬编码bin路径
+BINARY_PATH=$(find "$BUILD_DIR" -maxdepth 3 -type f -executable -name "$BINARY_TARGET_NAME" | head -n1)
+if [ -z "$BINARY_PATH" ]; then
+    echo "ERROR: 编译完成，但未检索到目标可执行文件 $BINARY_TARGET_NAME"
+    echo "==== Build目录完整文件 ===="
+    ls -R "$BUILD_DIR"
     exit 1
 fi
+BINARY_FULL_PATH="$BINARY_PATH"
+echo "✅ 成功定位程序：$BINARY_FULL_PATH"
 
 # ====================== 5. 制品导出 ======================
 echo -e "\n[5/6] 导出发布制品至 $OUTPUT_DIR"
