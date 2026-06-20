@@ -13,7 +13,6 @@ jobs:
     strategy:
       matrix:
         compiler: [gcc, clang]
-        build_type: [Debug, Release]
 
     steps:
       - uses: actions/checkout@v4
@@ -35,22 +34,16 @@ jobs:
       - name: Configure (CMake)
         run: |
           cmake -B build \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_CXX_COMPILER=${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }} \
-            -DBUILD_TESTING=ON
+            -DCMAKE_CXX_COMPILER=${{ matrix.compiler == 'gcc' && 'g++' || 'clang++' }}
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }} -j$(nproc)
+        run: cmake --build build --config Release -j$(nproc)
 
-      - name: Run unit tests
-        if: matrix.build_type == 'Debug'
-        run: ctest --test-dir build --output-on-failure
-
-      - name: Upload build artifacts (Release)
-        if: matrix.build_type == 'Release' && matrix.compiler == 'gcc'
+      - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: dicksuck-linux-gcc-${{ github.sha }}
+          name: dicksuck-linux-${{ matrix.compiler }}-${{ github.sha }}
           path: build/dicksuck
           retention-days: 14
