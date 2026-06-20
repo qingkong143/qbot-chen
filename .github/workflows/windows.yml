@@ -17,8 +17,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup vcpkg
+        uses: lukka/get-vcpkg-action@v2
+        with:
+          vcpkgCommitMessage: "setup"
+
+      - name: Install dependencies (vcpkg)
+        run: |
+          vcpkg install curl:x64-windows
+          vcpkg install nlohmann-json:x64-windows
+          vcpkg install sqlite3:x64-windows
+
       - name: Configure (CMake)
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
         shell: cmd
 
       - name: Build
