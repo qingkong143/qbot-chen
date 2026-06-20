@@ -12,34 +12,38 @@ jobs:
     runs-on: windows-latest
     strategy:
       matrix:
-        build_type: [Debug, Release]
+        build_type: [Release]
+
+    env:
+      BUILD_TYPE: ${{ matrix.build_type }}
+
+    defaults:
+      run:
+        shell: cmd
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup vcpkg
-        uses: lukka/get-vcpkg-action@v2
-        with:
-          vcpkgCommitMessage: "setup"
+      - name: Setup vcpkg (clone)
+        run: |
+          git clone --depth 1 https://github.com/microsoft/vcpkg.git C:\vcpkg
+          C:\vcpkg\bootstrap-vcpkg.bat
 
       - name: Install dependencies (vcpkg)
         run: |
-          vcpkg install curl:x64-windows
-          vcpkg install nlohmann-json:x64-windows
-          vcpkg install sqlite3:x64-windows
+          C:\vcpkg\vcpkg install curl:x64-windows
+          C:\vcpkg\vcpkg install nlohmann-json:x64-windows
+          C:\vcpkg\vcpkg install sqlite3:x64-windows
 
       - name: Configure (CMake)
-        run: cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
-        shell: cmd
+        run: cmake -B build -DCMAKE_BUILD_TYPE=%BUILD_TYPE% -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
 
       - name: Build
-        run: cmake --build build --config ${{ matrix.build_type }}
-        shell: cmd
+        run: cmake --build build --config %BUILD_TYPE%
 
-      - name: Upload artifacts (Release)
-        if: matrix.build_type == 'Release'
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: dicksuck-windows-msvc-${{ github.sha }}
-          path: build/Release/dicksuck.exe
+          path: build/%BUILD_TYPE%/dicksuck.exe
           retention-days: 14
