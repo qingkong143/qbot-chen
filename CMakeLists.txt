@@ -12,20 +12,15 @@ find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(SQLite3 REQUIRED)
 
-# ixwebsocket：系统包优先，回退 FetchContent 自动下载编译
-find_package(ixwebsocket QUIET)
-if(NOT ixwebsocket_FOUND)
-    include(FetchContent)
-    FetchContent_Declare(
-        ixwebsocket
-        GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
-        GIT_TAG        master
-        GIT_SHALLOW    TRUE
-    )
-    FetchContent_MakeAvailable(ixwebsocket)
-endif()
-
-find_package(ixwebsocket REQUIRED)
+# ixwebsocket：直接 FetchContent，不依赖系统包
+include(FetchContent)
+FetchContent_Declare(
+    ixwebsocket
+    GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
+    GIT_TAG        master
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(ixwebsocket)
 
 # ── 共享链接依赖（INTERFACE 库，同时供主程序和测试链接） ──
 add_library(dicksuck_deps INTERFACE)
@@ -34,12 +29,8 @@ target_link_libraries(dicksuck_deps INTERFACE
     nlohmann_json::nlohmann_json
     Threads::Threads
     SQLite::SQLite3
+    ixwebsocket::ixwebsocket
 )
-if(ixwebsocket_FOUND)
-    target_link_libraries(dicksuck_deps INTERFACE ixwebsocket::ixwebsocket)
-else()
-    message(FATAL_ERROR "ixwebsocket: FetchContent 下载失败")
-endif()
 
 # ── 共享代码（OBJECT 库，同时供主程序和测试链接） ──
 add_library(dicksuck_obj OBJECT
