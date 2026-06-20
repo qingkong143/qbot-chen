@@ -104,3 +104,8 @@ target_compile_options(dicksuck_obj PRIVATE
     $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -O2>
     $<$<CXX_COMPILER_ID:MSVC>:/W4 /O2 /utf-8>
 )
+target_compile_definitions(dicksuck_obj PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>:NOMINMAX>
+    $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN>
+    $<$<CXX_COMPILER_ID:MSVC>:_CRT_DECLARE_NONSTDC_NAMES=1>
+)
