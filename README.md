@@ -94,23 +94,41 @@
 
 | 模块 | 文件 | 职责 |
 |------|------|------|
-| **NapcatBot** | `napcat_bot.cpp/.h` | QQ 消息入口、冷却、去重、Agent 调度 |
-| **Agent** | `agent.cpp/.h` | LLM 对话循环、工具调用、上下文压缩 |
-| **Tools** | `tools.cpp/.h` | 工具注册/执行：OCR、命令、目录浏览、MCP 远程工具 |
-| **Models** | `models.cpp/.h` | LLM API 封装（DeepSeek 兼容 OpenAI 格式） |
-| **Deepseek** | `deepseek.cpp/.h` | HTTP 请求层（curl） |
-| **EmbeddingService** | `embedding_service.cpp/.h` | 向量 API 客户端（缓存 + 并发 + 重试） |
-| **EmbeddingStore** | `embedding_store.cpp/.h` | 向量持久化（SQLite per-namespace + 旧 JSON 迁移） |
-| **EmbeddingManager** | `embedding_store.cpp` | 多 namespace 向量库管理 |
-| **LongMemory** | `long_memory.cpp/.h` | 长期记忆 SQLite 存储 |
-| **JargonMiner** | `jargon_miner.cpp/.h` | 群聊行话自动挖掘 |
-| **KnowledgeRetriever** | `knowledge_retriever.cpp/.h` | 知识库 CRUD |
-| **StyleCache** | `style_cache.cpp/.h` | 群聊风格学习 |
-| **ImageOcrService** | `image_ocr_service.cpp/.h` | 图片 OCR（Agent toolcall 触发） |
-| **MessageDeduplicator** | `message_deduplicator.cpp/.h` | 消息去重（@ 前缀剥离） |
-| **ConnectionPool** | `connection_pool.cpp/.h` | curl 连接池 |
-| **Config** | `config.cpp/.h` | 配置加载 & 必填校验 |
-| **DatabaseMigrator** | `database_migrator.cpp/.h` | 数据迁移 & 版本管理 |
+| **NapcatBot** | `src/bot/napcat_bot.cpp/.h` | QQ 消息入口、冷却、去重、Agent 调度 |
+| **Agent** | `src/bot/agent.cpp/.h` | LLM 对话循环、工具调用、上下文压缩 |
+| **Tools** | `src/bot/tools.cpp/.h` | 工具注册/执行：OCR、命令、目录浏览、MCP 远程工具 |
+| **Models** | `src/bot/models.cpp/.h` | LLM API 封装（DeepSeek 兼容 OpenAI 格式） |
+| **Deepseek** | `src/bot/deepseek.cpp/.h` | HTTP 请求层（libcurl） |
+| **ImageOcrService** | `src/bot/image_ocr_service.cpp/.h` | 图片 OCR（Agent toolcall 按需触发） |
+| **ConnectionPool** | `src/bot/connection_pool.cpp/.h` | curl 连接池 |
+| **Config** | `src/core/config.cpp/.h` | 配置加载 & 必填校验 |
+| **Command** | `src/core/command.cpp/.h` | 命令处理 |
+| **MCP Client/Manager** | `src/mcp/mcp_client.cpp/.h`, `src/mcp/mcp_manager.cpp/.h` | MCP 远程工具客户端 & 管理 |
+| **EmbeddingService** | `src/knowledge/embedding_service.cpp/.h` | 向量 API 客户端（缓存 + 并发 + 重试） |
+| **EmbeddingStore** | `src/knowledge/embedding_store.cpp/.h` | 向量持久化（SQLite per-namespace + 旧 JSON 迁移） |
+| **KnowledgeRetriever** | `src/knowledge/knowledge_retriever.cpp/.h` | 知识库 CRUD |
+| **QualityScorer** | `src/knowledge/quality_scorer.cpp/.h` | 知识质量评分 |
+| **KnowledgeSharing** | `src/knowledge/knowledge_sharing.cpp/.h` | 知识共享 |
+| **QueryCache** | `src/knowledge/query_cache.cpp/.h` | 查询缓存 |
+| **LongMemory** | `src/memory/long_memory.cpp/.h` | 长期记忆 SQLite 存储 |
+| **JargonMiner** | `src/memory/jargon_miner.cpp/.h` | 群聊行话自动挖掘 |
+| **JargonDataModel** | `src/memory/jargon_data_model.cpp/.h` | 行话数据模型 |
+| **JargonInference** | `src/memory/jargon_inference.cpp/.h` | 行话推理引擎 |
+| **StyleCache** | `src/memory/style_cache.cpp/.h` | 群聊风格缓存 |
+| **StyleLearner** | `src/memory/style_learner.cpp/.h` | 群聊风格学习 |
+| **VocabularyManager** | `src/memory/vocabulary_manager.cpp/.h` | 词汇管理 |
+| **Memory** | `src/memory/memory.cpp/.h` | 记忆 SQLite 底层操作 |
+| **MemoryManager** | `src/memory/memory_manager.cpp/.h` | 记忆管理器 |
+| **DatabaseMigrator** | `src/infra/database_migrator.cpp/.h` | 数据迁移 & 版本管理 |
+| **MessageDeduplicator** | `src/infra/message_deduplicator.cpp/.h` | 消息去重（@ 前缀剥离） |
+| **EventBus** | `src/infra/event_bus.cpp/.h` | 事件总线 |
+| **CleanupManager** | `src/infra/cleanup_manager.cpp/.h` | 定时清理 |
+| **PerfMonitor** | `src/infra/perf_monitor.cpp/.h` | 性能监控 |
+| **ReplyOptimizer** | `src/infra/reply_optimizer.cpp/.h` | 回复优化 |
+| **PluginLoader** | `src/plugin/plugin_loader.cpp/.h` | 插件加载器 |
+| **PluginBase** | `src/plugin/plugin_base.cpp/.h` | 插件基类 |
+| **BuiltinPlugins** | `src/plugin/builtin_plugins.cpp/.h` | 内置插件注册 |
+| **ProcessManager** | `src/plugin/process_manager.cpp/.h` | 插件进程管理 |
 
 ---
 
@@ -123,7 +141,8 @@
 | SQLite | `data/embedding/*.db` | 向量库（per-namespace） |
 | SQLite | `data/jargons/*.db` | 行话数据 |
 | JSON | `data/style_cache/` | 群风格缓存 |
-| JSON | `config.json` | 用户配置（必须手动编辑） |
+| JSON | `data/a-memorix/` | AMemorix 记忆数据 |
+| JSON | `config.json` | 用户配置（必须手动编辑，见 `config.example.json`） |
 
 ---
 
@@ -226,46 +245,83 @@ cmake --build . --config Release
 ```
 qbot-chen/
 ├── main.cpp                  # 入口，模式选择
-├── config.cpp/.h             # 配置加载 & 必填校验
-├── napcat_bot.cpp/.h         # QQ 机器人主循环
-├── agent.cpp/.h              # LLM 对话 & 工具调用
-├── tools.cpp/.h              # 工具系统（搜索/OCR/命令）
-├── models.cpp/.h             # LLM API 封装
-├── deepseek.cpp/.h           # HTTP 请求层
-├── embedding_service.cpp/.h  # 向量 API 客户端
-├── embedding_store.cpp/.h    # 向量持久化（SQLite）
-├── image_ocr_service.cpp/.h  # 图片 OCR
-├── long_memory.cpp/.h        # 长期记忆
-├── jargon_miner.cpp/.h       # 行话挖掘
-├── knowledge_retriever.cpp/.h # 知识库
-├── style_cache.cpp/.h        # 群风格学习
-├── message_deduplicator.cpp/.h # 消息去重
-├── connection_pool.cpp/.h    # curl 连接池
-├── database_migrator.cpp/.h  # 数据迁移
-├── persistence.cpp/.h        # 通用持久化抽象
-├── memory.cpp                # 长期记忆 SQLite 操作
-├── memory_manager.cpp/.h     # 记忆管理器
-├── cleanup_manager.cpp/.h    # 定时清理
-├── quality_scorer.cpp/.h     # 知识质量评分
-├── knowledge_sharing.cpp/.h  # 知识共享
-├── reply_optimizer.cpp/.h    # 回复优化
-├── style_learner.cpp/.h      # 风格学习
-├── vocabulary_manager.cpp/.h # 词汇管理
-├── query_cache.cpp/.h        # 查询缓存
-├── perf_monitor.cpp/.h       # 性能监控
-├── event_bus.cpp/.h          # 事件总线
-├── plugin_loader.cpp/.h      # 插件加载器
-├── command.cpp/.h            # 命令处理
-├── logger.cpp/.h             # 日志系统
+├── main_system.cpp/.h        # 系统级入口（扩展模式）
 ├── test_cases.cpp            # 单元测试
-├── test_framework.h          # 测试框架
+├── test_framework.h          # 测试框架头
 ├── CMakeLists.txt            # 构建配置
-├── config.json               # 用户配置（首次运行自动生成）
-└── data/                     # 运行时数据
-    ├── embedding/            # 向量库
-    ├── knowledge/            # 知识库
-    ├── long_memory.db        # 长期记忆
-    └── style_cache/          # 风格缓存
+├── build.sh                  # Linux 一键构建脚本
+├── config.example.json       # 配置模板（复制为 config.json 后编辑）
+├── src/
+│   ├── bot/                  # QQ 机器人 & LLM 交互层
+│   │   ├── napcat_bot.cpp/.h     # QQ 机器人主循环（消息接收、冷却、去重、Agent 调度）
+│   │   ├── agent.cpp/.h          # LLM 对话循环、工具调用、上下文压缩
+│   │   ├── tools.cpp/.h          # 工具注册/执行（搜索、OCR、命令）
+│   │   ├── models.cpp/.h         # LLM API 封装（DeepSeek/OpenAI 兼容格式）
+│   │   ├── deepseek.cpp/.h       # HTTP 请求层（libcurl）
+│   │   ├── image_ocr_service.cpp/.h  # 图片 OCR（Agent toolcall 按需触发）
+│   │   └── connection_pool.cpp/.h    # curl 连接池
+│   │
+│   ├── core/                 # 基础组件
+│   │   ├── config.cpp/.h         # 配置加载 & 必填校验
+│   │   ├── command.cpp/.h        # 命令处理
+│   │   ├── tools.h/.cpp          # 工具定义头文件
+│   │   ├── base.h                # 基础类型/宏
+│   │   ├── math.h                # 数学工具
+│   │   └── platform.h            # 平台抽象
+│   │
+│   ├── mcp/                  # MCP 远程工具扩展
+│   │   ├── mcp_client.cpp/.h     # MCP 客户端（SSE/HTTP 通信）
+│   │   └── mcp_manager.cpp/.h    # MCP 工具管理器
+│   │
+│   ├── knowledge/            # 知识库 & 向量检索
+│   │   ├── embedding_service.cpp/.h  # 向量 API 客户端（缓存 + 并发 + 重试）
+│   │   ├── embedding_store.cpp/.h    # 向量持久化（SQLite per-namespace + 旧 JSON 迁移）
+│   │   ├── knowledge_retriever.cpp/.h # 知识库 CRUD
+│   │   ├── quality_scorer.cpp/.h     # 知识质量评分
+│   │   ├── knowledge_sharing.cpp/.h  # 知识共享
+│   │   └── query_cache.cpp/.h        # 查询缓存
+│   │
+│   ├── memory/               # 记忆 & 行话
+│   │   ├── long_memory.cpp/.h        # 长期记忆 SQLite 存储
+│   │   ├── long_memory_phase3.cpp    # 长期记忆 Phase3 扩展
+│   │   ├── memory.cpp/.h             # 记忆 SQLite 底层操作
+│   │   ├── memory_manager.cpp/.h     # 记忆管理器
+│   │   ├── jargon_miner.cpp/.h       # 群聊行话自动挖掘
+│   │   ├── jargon_miner_old.cpp      # 旧版行话挖掘（保留参考）
+│   │   ├── jargon_data_model.cpp/.h  # 行话数据模型
+│   │   ├── jargon_inference.cpp/.h   # 行话推理引擎
+│   │   ├── style_cache.cpp/.h        # 群聊风格缓存
+│   │   ├── style_learner.cpp/.h      # 群聊风格学习
+│   │   └── vocabulary_manager.cpp/.h # 词汇管理
+│   │
+│   ├── infra/                # 基础设施
+│   │   ├── database_migrator.cpp/.h  # 数据迁移 & 版本管理
+│   │   ├── message_deduplicator.cpp/.h # 消息去重（@ 前缀剥离）
+│   │   ├── event_bus.cpp/.h          # 事件总线
+│   │   ├── cleanup_manager.cpp/.h    # 定时清理
+│   │   ├── perf_monitor.cpp/.h       # 性能监控
+│   │   ├── reply_optimizer.cpp/.h    # 回复优化
+│   │   └── logger.cpp/.h             # 日志系统
+│   │
+│   └── plugin/               # 插件系统
+│       ├── plugin_loader.cpp/.h      # 插件加载器
+│       ├── plugin_base.cpp/.h        # 插件基类
+│       ├── builtin_plugins.cpp/.h    # 内置插件注册
+│       ├── process_manager.cpp/.h    # 插件进程管理
+│       ├── persistence.cpp/.h        # 插件持久化
+│       ├── command_handler_plugin.cpp/.h  # 命令处理插件
+│       ├── embedding_plugin.cpp/.h       # 嵌入向量插件
+│       ├── knowledge_base_plugin.cpp/.h  # 知识库插件
+│       ├── long_term_memory_plugin.cpp/.h # 长期记忆插件
+│       └── user_management_plugin.cpp/.h  # 用户管理插件
+│
+└── data/                     # 运行时数据（首次运行自动创建）
+    ├── embedding/            # 向量库（per-namespace SQLite）
+    ├── knowledge/            # 知识库（SQLite）
+    ├── jargons/              # 行话数据（SQLite）
+    ├── long_memory.db        # 长期记忆（用户画像、聊天摘要）
+    ├── style_cache/          # 群风格缓存（JSON）
+    └── a-memorix/            # AMemorix 记忆数据
 ```
 
 ---
@@ -273,20 +329,25 @@ qbot-chen/
 ## 依赖关系
 
 ```
-napcat_bot ──→ agent ──→ models ──→ deepseek（curl）
-                  ├── tools（搜索、OCR、命令）
-                  ├── jargon_miner
-                  ├── message_deduplicator
-                  └── knowledge_retriever
+src/bot/napcat_bot ──→ src/bot/agent ──→ src/bot/models ──→ src/bot/deepseek（libcurl）
+                          ├── src/bot/tools（搜索、OCR、命令）
+                          ├── src/memory/jargon_miner
+                          ├── src/infra/message_deduplicator
+                          └── src/knowledge/knowledge_retriever
 
-agent ──→ EmbeddingService ──→ EmbeddingManager ──→ EmbeddingStore（SQLite）
-agent ──→ LongMemory（SQLite）
-agent ──→ StyleCache
-agent ──→ QueryCache
+src/bot/agent ──→ src/knowledge/embedding_service ──→ src/knowledge/embedding_store（SQLite）
+src/bot/agent ──→ src/memory/long_memory（SQLite）
+src/bot/agent ──→ src/memory/style_cache
+src/bot/agent ──→ src/knowledge/query_cache
+src/bot/agent ──→ src/mcp/mcp_manager ──→ src/mcp/mcp_client
 
-napcat_bot ──→ ImageOcrService（curl）
-napcat_bot ──→ ConnectionPool（curl）
-napcat_bot ──→ DatabaseMigrator
+src/bot/napcat_bot ──→ src/bot/image_ocr_service（libcurl）
+src/bot/napcat_bot ──→ src/bot/connection_pool（libcurl）
+src/bot/napcat_bot ──→ src/infra/database_migrator
+
+src/core/config ──→ 所有模块（配置注入）
+src/infra/event_bus ──→ 跨模块事件分发
+src/plugin/ ──→ 插件化扩展层（独立于主流程）
 ```
 
 ---
@@ -295,23 +356,27 @@ napcat_bot ──→ DatabaseMigrator
 
 ### 添加新的 Agent 工具
 
-在 `napcat_bot.cpp` 的 `setupTools()` 中注册：
+在 `src/bot/tools.cpp` 中实现工具函数，然后在 `src/bot/agent.cpp` 的 `setupTools()` 中注册：
 
 ```cpp
-t.registerTool("tool_name", {
-    {"type", "function"},
-    {"function", {
-        {"name", "tool_name"},
-        {"description", "工具描述"},
-        {"parameters", { ... }}
-    }},
-    [this](const json& args) -> std::string {
-        // 实现逻辑
-        return "结果";
-    }
-});
+// tools.cpp 中定义
+static std::string tool_my_feature(const json& args) {
+    // 解析 args，执行逻辑
+    return "结果";
+}
+
+// agent.cpp 的 setupTools() 中绑定
+tools.registerTool("my_feature", tool_my_feature);
 ```
+
+工具函数签名：`std::string(const json& args)`，返回值即为 LLM 看到的工具执行结果。
 
 ### 添加新的必填配置项
 
-在 `config.cpp` 的 `validate_required()` 中添加验证逻辑。
+在 `src/core/config.cpp` 的 `validate_required()` 中添加验证逻辑。
+
+### 添加新的插件
+
+1. 继承 `src/plugin/plugin_base.h` 中的 `PluginBase`
+2. 在 `src/plugin/builtin_plugins.cpp` 中注册
+3. 插件通过 `ProcessManager` 管理生命周期

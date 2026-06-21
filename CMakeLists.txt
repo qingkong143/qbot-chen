@@ -12,10 +12,12 @@ find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(SQLite3 REQUIRED)
 
-# ixwebsocket：系统包优先，回退 FetchContent
+# ── ixwebsocket：系统包优先，回退 FetchContent ─────────────
+# build.sh 可能已将 ixwebsocket 安装到 /usr/local，先搜这里
+list(APPEND CMAKE_PREFIX_PATH "/usr/local")
 find_package(ixwebsocket QUIET)
 if(NOT ixwebsocket_FOUND)
-    message(STATUS "ixwebsocket not found, trying FetchContent...")
+    message(STATUS "ixwebsocket not found by find_package, trying FetchContent...")
     include(FetchContent)
     FetchContent_Declare(
         ixwebsocket
@@ -23,10 +25,18 @@ if(NOT ixwebsocket_FOUND)
         GIT_TAG        master
         GIT_SHALLOW    TRUE
     )
-    FetchContent_MakeAvailable(ixwebsocket)
-    find_package(ixwebsocket REQUIRED)
-else()
-    message(STATUS "Using system ixwebsocket")
+    FetchContent_Populate(ixwebsocket)
+    if(ixwebsocket_SOURCE_DIR)
+        add_subdirectory(${ixwebsocket_SOURCE_DIR} ${ixwebsocket_BINARY_DIR})
+        set(ixwebsocket_FOUND TRUE CACHE BOOL "" FORCE)
+        message(STATUS "ixwebsocket built from source via FetchContent")
+    else()
+        message(FATAL_ERROR
+            "ixwebsocket not found. Install it first:\n"
+            "  Ubuntu/Debian: sudo apt install libixwebsocket-dev\n"
+            "  Or build from source: https://github.com/machinezone/IXWebSocket"
+        )
+    endif()
 endif()
 
 # ── 共享链接依赖 ──────────────────────────
@@ -102,9 +112,8 @@ add_library(qbot_chen_obj OBJECT
     src/mcp/mcp_manager.cpp
 )
 
-# include 路径：src/ 为根 + 根目录（main.cpp / test_cases.cpp 在根目录）
-target_include_directories(qbot_chen_obj PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+# include 路径：只需项目根目录，源码统一使用 "src/..." 前缀包含
+target_include_directories(qbot_chen_obj PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
 target_link_libraries(qbot_chen_obj PUBLIC qbot_chen_deps)
