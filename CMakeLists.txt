@@ -91,15 +91,9 @@ add_library(qbot_chen_obj OBJECT
     src/mcp/mcp_manager.cpp
 )
 
-# include 路径：src/ 下的各子目录（与 #include "module/file.h" 对应）
+# include 路径：src/ 为根（与 #include "module/file.h" 对应）
 target_include_directories(qbot_chen_obj PRIVATE
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/core
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/bot
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/memory
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/knowledge
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/plugin
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/infra
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/mcp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 target_link_libraries(qbot_chen_obj PUBLIC qbot_chen_deps)
 
