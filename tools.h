@@ -16,8 +16,7 @@ public:
 	json GetTools() const;
 	void ProcessToolCalls(const json& toolCalls, json& toolResponses);
 	static std::string ListDirectory(const std::string& root_path, bool recursive);
-	std::string webSearch(std::string& query, bool summary, std::optional<std::string>Include = std::nullopt);
-	static std::string exec_cmd(const std::string& cmd);
+	std::string exec_cmd(const std::string& cmd);
 	static std::string get_current_time();
 
 	// 注册外部工具（工具名 + JSON定义 + 处理回调）

@@ -84,9 +84,9 @@ static void parse_model(const json& src, ModelConfig& dst) {
 static const char* CONFIG_TEMPLATE = R"JSON(
 {
     "main_model": {
-        "provider": "your-provider",
-        "model": "your-model-name",
-        "url": "https://api.example.com/v1/chat/completions",
+        "provider": "deepseek",
+        "model": "deepseek-v4-flash",
+        "url": "https://api.deepseek.com/chat/completions",
         "api_key": "sk-your-api-key",
         "temperature": 0.3,
         "max_tokens": 65536,
@@ -100,10 +100,6 @@ static const char* CONFIG_TEMPLATE = R"JSON(
         "temperature": 0.3,
         "max_tokens": 65500,
         "context_window": 128000
-    },
-    "search": {
-        "url": "https://api.example.com/v1/web-search",
-        "api_key": "sk-your-search-api-key"
     },
     "embedding": {
         "api_url": "https://api.example.com/v1/embeddings",
@@ -127,8 +123,19 @@ static const char* CONFIG_TEMPLATE = R"JSON(
         "private_whitelist": [],
         "admin_users": ["your-qq-number"],
         "bot_aliases": [],
-        "identity_rules_suffix": "提示词"
+        "max_private_agents": 500
     },
+    "mcp_servers": [
+        {
+            "name": "fetch",
+            "url": "https://mcp.api-inference.modelscope.net/xxx/mcp",
+            "transport": "streamable_http",
+            "headers": {
+                "Authorization": "Bearer your-api-key"
+            },
+            "enabled": true
+        }
+    ],
     "pipeline": {
         "cooldownSeconds": 30
     },
@@ -165,14 +172,6 @@ static std::vector<std::string> validate_required(const json& cfg) {
         require_str(s, "url");
         require_str(s, "api_key");
         require_str(s, "model");
-    }
-
-    // search — 搜索工具必填
-    require_obj("search");
-    if (cfg.contains("search")) {
-        const auto& s = cfg["search"];
-        require_str(s, "url");
-        require_str(s, "api_key");
     }
 
     // napcat — QQ 机器人必填
@@ -278,12 +277,6 @@ void Config::load(const std::string& path) {
 
     if (cfg.contains("summary_model") && cfg["summary_model"].is_object())
         parse_model(cfg["summary_model"], _summary);
-
-    if (cfg.contains("search") && cfg["search"].is_object()) {
-        std::string v;
-        v = json_str(cfg["search"], "url");     if (!v.empty()) _search.url = v;
-        v = json_str(cfg["search"], "api_key"); if (!v.empty()) _search.api_key = v;
-    }
 
     if (cfg.contains("embedding") && cfg["embedding"].is_object()) {
         auto& e = cfg["embedding"];
@@ -424,6 +417,27 @@ void Config::load(const std::string& path) {
             if (_a_memorix.max_episodes < 0) _a_memorix.max_episodes = 0;
             _a_memorix.max_profile_chars = json_int(r, "max_profile_chars", _a_memorix.max_profile_chars);
             if (_a_memorix.max_profile_chars < 0) _a_memorix.max_profile_chars = 0;
+        }
+    }
+
+    // MCP Server 配置
+    if (cfg.contains("mcp_servers") && cfg["mcp_servers"].is_array()) {
+        _mcp_servers.clear();
+        for (auto& s : cfg["mcp_servers"]) {
+            if (!s.is_object()) continue;
+            McpServerEntry e;
+            e.name = json_str(s, "name");
+            e.url = json_str(s, "url");
+            e.transport = json_str(s, "transport", "streamable_http");
+            e.api_key = json_str(s, "api_key");
+            if (s.contains("headers") && s["headers"].is_object()) {
+                for (auto& [k, v] : s["headers"].items()) {
+                    if (v.is_string()) e.headers[k] = v.get<std::string>();
+                }
+            }
+            e.enabled = json_bool(s, "enabled", true);
+            if (!e.name.empty() && !e.url.empty())
+                _mcp_servers.push_back(std::move(e));
         }
     }
 

@@ -1671,6 +1671,24 @@ void Napcat::run() {
 	_agentGroup.setAllowedExecUsers(Config::get().napcat().admin_users);
 	registerBotTools(_agentGroup.tools);
 
+	// 初始化 MCP 客户端（连接外部 MCP Server，注册远程工具）
+	_mcpManager.setup(_agentGroup.tools);
+
+	// 注册 MCP 工具查询命令
+	_cmdHandler.registerCommand({
+		"/", "mcp_tools", "列出所有已连接的 MCP 工具",
+		[this](const json&) -> std::string {
+			auto tools = _mcpManager.listAllTools();
+			if (tools.empty()) return "暂无 MCP 工具";
+			std::string result = "已连接 MCP 工具:\n";
+			for (auto& [name, info] : tools.items()) {
+				result += "  " + name + " — " + info.value("description", "") + "\n";
+			}
+			return result;
+		},
+		CommandMatchLevel::Intercept
+	});
+
 	// 注册内置命令
 	_cmdHandler.registerBuiltins();
 

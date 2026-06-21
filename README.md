@@ -1,6 +1,6 @@
 # QBot — AI 驱动的 QQ 机器人
 
-基于 NapCat（OneBot 协议）和 DeepSeek 大模型构建的智能 QQ 机器人。支持群聊/私聊、长期记忆、语义检索、图片 OCR、行话挖掘、网络搜索等能力。
+基于 NapCat（OneBot 协议）和 DeepSeek 大模型构建的智能 QQ 机器人。支持群聊/私聊、长期记忆、语义检索、图片 OCR、行话挖掘、MCP 远程工具扩展等能力。
 
 ---
 
@@ -74,8 +74,7 @@
   │   ├─ 上下文超限 → 压缩历史
   │   ├─ LLM 生成 → 可能触发 Tool Call
   │   │       ├─ search_history：查询本地 SQLite 历史
-  │   │       ├─ recognize_image：Agent 按需调用 OCR
-  │   │       ├─ web_search：网络搜索
+  │   │       ├─ MCP 远程工具（如 fetch）：通过 MCP Server 扩展能力
   │   │       ├─ embed / search_similar：语义检索
   │   │       └─ exec_cmd：管理员命令
   │   └─ 回复 → quickReplyLong（自动分段，UTF-8 安全）
@@ -97,7 +96,7 @@
 |------|------|------|
 | **NapcatBot** | `napcat_bot.cpp/.h` | QQ 消息入口、冷却、去重、Agent 调度 |
 | **Agent** | `agent.cpp/.h` | LLM 对话循环、工具调用、上下文压缩 |
-| **Tools** | `tools.cpp/.h` | 工具注册/执行：搜索、OCR、命令、目录浏览 |
+| **Tools** | `tools.cpp/.h` | 工具注册/执行：OCR、命令、目录浏览、MCP 远程工具 |
 | **Models** | `models.cpp/.h` | LLM API 封装（DeepSeek 兼容 OpenAI 格式） |
 | **Deepseek** | `deepseek.cpp/.h` | HTTP 请求层（curl） |
 | **EmbeddingService** | `embedding_service.cpp/.h` | 向量 API 客户端（缓存 + 并发 + 重试） |
@@ -171,10 +170,6 @@ cmake --build . --config Release
         "api_key": "sk-xxx",
         "model": "deepseek-v4-flash"
     },
-    "search": {
-        "url": "https://api.bocha.cn/v1/web-search",
-        "api_key": "sk-xxx"
-    },
     "napcat": {
         "ws_url": "ws://127.0.0.1:3001",
         "http_url": "http://127.0.0.1:3000",
@@ -183,9 +178,9 @@ cmake --build . --config Release
 }
 ```
 
-必填字段：`main_model.url/api_key/model`、`summary_model.url/api_key/model`、`search.url/api_key`、`napcat.ws_url/http_url/token`。
+必填字段：`main_model.url/api_key/model`、`summary_model.url/api_key/model`、`napcat.ws_url/http_url/token`。
 
-可选字段（有默认值）：OCR、embedding、pipeline、a_memorix、ban_words 等。
+可选字段（有默认值）：OCR、embedding、mcp_servers、pipeline、a_memorix、ban_words 等。
 
 ### 4. 运行
 

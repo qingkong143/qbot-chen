@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "base.h"
+#include <map>
 #include <set>
 #include <vector>
 
@@ -14,12 +15,6 @@ struct ModelConfig {
     double temperature = 0.3;
     int max_tokens = 65536;   // 单次输出上限
     int context_window = 1000000; // 上下文窗口大小，用于自动推导压缩阈值
-};
-
-// 搜索配置
-struct SearchConfig {
-    std::string url;
-    std::string api_key;
 };
 
 // Embedding 配置（向量检索独立配置）
@@ -98,7 +93,20 @@ struct NapcatConfig {
     std::set<std::string> admin_users;    // 允许 exec_cmd 的 QQ 号
     std::vector<std::string> bot_aliases; // 未@消息中用于判断是否在叫机器人的昵称
     std::string identity_rules_suffix;
+    size_t max_private_agents = 500;  // 私聊 agent 上限，超出后 LRU 淘汰
 };
+
+// MCP Server 配置
+struct McpServerEntry {
+    std::string name;
+    std::string url;
+    std::string transport = "streamable_http";
+    std::string api_key;
+    std::map<std::string, std::string> headers; // 任意自定义 HTTP 头
+    bool enabled = true;
+};
+
+using McpServersConfig = std::vector<McpServerEntry>;
 
 // 全局 Config 单例
 class Config {
@@ -111,7 +119,6 @@ public:
 
     const ModelConfig&  main_model()    const { return _main; }
     const ModelConfig&  summary_model() const { return _summary; }
-    const SearchConfig& search()        const { return _search; }
     const EmbeddingConfig& embedding()  const { return _embedding; }
     const OcrConfig& ocr()              const { return _ocr; }
     const NapcatConfig& napcat()        const { return _napcat; }
@@ -120,13 +127,13 @@ public:
     const BanConfig&     ban()            const { return _ban; }
     const CommandsConfig& commands()      const { return _commands; }
     const AMemorixConfig& a_memorix()     const { return _a_memorix; }
+    const McpServersConfig& mcp_servers() const { return _mcp_servers; }
 
 private:
     Config();  // 构造时填入默认值
 
     ModelConfig  _main;
     ModelConfig  _summary;
-    SearchConfig _search;
     EmbeddingConfig _embedding;
     OcrConfig _ocr;
     NapcatConfig _napcat;
@@ -136,4 +143,5 @@ private:
     BanConfig _ban;
     CommandsConfig _commands;
     AMemorixConfig _a_memorix;
+    McpServersConfig _mcp_servers;
 };

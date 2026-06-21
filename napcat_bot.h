@@ -15,6 +15,7 @@
 #include "quality_scorer.h"
 #include "knowledge_sharing.h"
 #include "database_migrator.h"
+#include "mcp_manager.h"
 #include <iostream>
 #include <string>
 #include <thread>
@@ -127,6 +128,9 @@ private:
 
 	// 命令处理器
 	CommandHandler _cmdHandler;
+
+	// MCP 管理器
+	McpManager _mcpManager;
 
 	// 当前正在处理的会话上下文
 	int64_t _currentGroupId = 0;

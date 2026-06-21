@@ -111,34 +111,6 @@ static json tool_ListDirectory() {
     };
 }
 
-static json tool_webSearch() {
-    return {
-        {"type", "function"},
-        {"function", {
-            {"name", "webSearch"},
-            {"description", "从全网搜索任何网页信息和网页链接，结果准确、摘要完整"},
-            {"parameters", {
-                {"type", "object"},
-                {"properties", {
-                    {"query", {
-                        {"type", "string"},
-                        {"description", "需要搜索的内容"}
-                    }},
-                    {"summary", {
-                        {"type", "boolean"},
-                        {"description", "是否显示文本摘要"},
-                    }},
-                    {"Include", {
-                        {"type", "string"},
-                        {"description", "指定搜索的网站范围。多个域名使用|或,分隔，最多不能超过100个.可填值：根域名,子域名.例如：qq.com|m.163.com"}
-                    }}
-                }},
-                {"required", {"query","summary"}}
-            }}
-        }}
-    };
-}
-
 static json tool_exec_cmd() {
     return {
         {"type", "function"},
@@ -262,7 +234,6 @@ static json tool_matrix_transform() {
 json Tools::GetTools() const {
     json arr = json::array({
         tool_ListDirectory(),
-        tool_webSearch(),
         tool_exec_cmd(),
         tool_get_current_time(),
         tool_wait(),
@@ -333,30 +304,6 @@ void Tools::ProcessToolCalls(const json& toolCalls, json& toolResponses) {
                 recursive = (r.get<int>() != 0);
             }
             result = ListDirectory(root_path, recursive);
-        }
-        else if (name == "webSearch") {
-            std::string query = args["query"];
-            // 安全提取 summary
-            bool summary = false;
-            const auto& s = args["summary"];
-            if (s.is_boolean()) {
-                summary = s.get<bool>();
-            }
-            else if (s.is_string()) {
-                std::string v = s.get<std::string>();
-                std::transform(v.begin(), v.end(), v.begin(), ::tolower);
-                summary = (v == "true" || v == "1" || v == "yes");
-            }
-            else if (s.is_number_integer()) {
-                summary = (s.get<int>() != 0);
-            } // 其他类型保持默认 false 或按需扩展
-            if (args.contains("Include")) {
-                std::string Include = args["Include"];
-                result = webSearch(query, summary, Include);
-            }
-            else {
-                result = webSearch(query, summary);
-            }
         }
         else if (name == "exec_cmd") {
             std::string cmd = args["cmd"];
@@ -553,112 +500,6 @@ size_t Tools::WriteCallback(void* contents, size_t size, size_t nmemb, std::stri
     size_t totalSize = size * nmemb;
     output->append((char*)contents, totalSize);
     return totalSize;
-}
-
-std::string Tools::webSearch(std::string& query, bool summary, std::optional<std::string> Include) {
-    CURL* curl = curl_easy_init();
-    if (!curl) {
-        std::cerr << "curl_easy_init failed" << std::endl;
-        return "搜索服务不可用";
-    }
-
-    try {
-        std::string api_key = Config::get().search().api_key;
-        std::string search_url = Config::get().search().url;
-
-        // 构造请求体（bocha API 格式）
-        json requestBody;
-        requestBody["query"] = query;
-        requestBody["freshness"] = "noLimit";
-        requestBody["summary"] = false;  // 不要求服务端摘要，自己提取
-        requestBody["count"] = 5;        // 减少条数，降低上下文压力
-        if (Include.has_value()) {
-            requestBody["include"] = Include.value();
-        }
-
-        std::string bodyString = requestBody.dump();
-
-        struct curl_slist* headers = nullptr;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        headers = curl_slist_append(headers, ("Authorization: Bearer " + api_key).c_str());
-
-        std::string responseBody;
-        curl_easy_setopt(curl, CURLOPT_URL, search_url.c_str());
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        curl_easy_setopt(curl, CURLOPT_POST, 1L);
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, bodyString.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, Tools::WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 15L);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-
-        CURLcode res = curl_easy_perform(curl);
-        long http_code = 0;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
-
-        curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-
-        if (res != CURLE_OK) {
-            std::cerr << "[✗] webSearch curl: " << curl_easy_strerror(res) << std::endl;
-            return "搜索请求失败: " + std::string(curl_easy_strerror(res));
-        }
-        if (http_code != 200) {
-            std::cerr << "[✗] webSearch HTTP " << http_code << std::endl;
-            return "搜索服务返回错误 HTTP " + std::to_string(http_code);
-        }
-
-        // 安全解析 JSON（不抛异常）
-        json response = json::parse(responseBody, nullptr, false);
-        if (response.is_null() || response.is_discarded()) {
-            return "搜索结果解析失败";
-        }
-
-        // 从 bocha 响应中提取精简结构化结果
-        std::string result;
-        int count = 0;
-
-        // bocha 返回格式：data.webPages.value[]
-        json* pages = nullptr;
-        if (response.contains("data") && response["data"].contains("webPages")
-            && response["data"]["webPages"].contains("value")) {
-            pages = &response["data"]["webPages"]["value"];
-        } else if (response.contains("webPages") && response["webPages"].contains("value")) {
-            pages = &response["webPages"]["value"];
-        }
-
-        if (pages && pages->is_array()) {
-            for (auto& item : *pages) {
-                count++;
-                std::string title = item.value("name", item.value("title", ""));
-                std::string snippet = item.value("snippet", item.value("summary", ""));
-                std::string url = item.value("url", "");
-
-                // 截断过长摘要，减少上下文压力
-                if (snippet.size() > 150) {
-                    snippet = snippet.substr(0, 147) + "...";
-                }
-
-                result += std::to_string(count) + ". " + title + "\n";
-                if (!snippet.empty()) result += "   " + snippet + "\n";
-                if (!url.empty()) result += "   链接: " + url + "\n";
-                result += "\n";
-            }
-        }
-
-        if (count == 0) {
-            return "未找到相关搜索结果。";
-        }
-
-        std::cout << "[+] webSearch: " << count << " results, "
-                  << result.size() << " chars" << std::endl;
-        return sanitizeUtf8Text(result);
-    }
-    catch (const std::exception& e) {
-        std::cerr << "[✗] webSearch: " << e.what() << std::endl;
-        return "搜索异常: " + std::string(e.what());
-    }
 }
 
 std::string Tools::exec_cmd(const std::string& cmd) {

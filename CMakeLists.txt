@@ -56,6 +56,8 @@ add_library(qbot_chen_obj OBJECT
     memory_manager.cpp
     message_deduplicator.cpp
     models.cpp
+    mcp_client.cpp
+    mcp_manager.cpp
     napcat_bot.cpp
     perf_monitor.cpp
     plugin_loader.cpp
