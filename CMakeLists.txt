@@ -125,6 +125,7 @@ add_executable(qbot_chen
 )
 set_target_properties(qbot_chen PROPERTIES OUTPUT_NAME "qbot-chen")
 target_link_libraries(qbot_chen PRIVATE qbot_chen_deps)
+target_include_directories(qbot_chen PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
 # ── 测试 ──────────────────────────────────
 enable_testing()
@@ -133,6 +134,7 @@ add_executable(qbot_chen_test
     test_cases.cpp
 )
 target_link_libraries(qbot_chen_test PRIVATE qbot_chen_deps)
+target_include_directories(qbot_chen_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME qbot_chen_unit_tests COMMAND qbot_chen_test)
 
 # ── 编译选项 ──────────────────────────────
