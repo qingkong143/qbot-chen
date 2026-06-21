@@ -59,5 +59,5 @@ private:
     int _requestId = 1;
     mutable std::mutex _mutex;
     bool _initialized = false;
-    std::string _sessionId; // mcp-session-id from initialize response
+    std::string _sessionId; // mcp-session-id
 };

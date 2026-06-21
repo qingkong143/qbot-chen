@@ -3,19 +3,18 @@
 #include "src/bot/deepseek.h"
 #include <curl/curl.h>
 #include <iostream>
+#include <algorithm>
 
 using json = nlohmann::json;
 
-// ── curl write callback ──────────────────────────────────────────
+// ── curl callbacks ─────────────────────────────────────────────────
 static size_t McpWriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
-    size_t totalSize = size * nmemb;
-    output->append(static_cast<char*>(contents), totalSize);
-    return totalSize;
+    output->append(static_cast<char*>(contents), size * nmemb);
+    return size * nmemb;
 }
 
-// ── curl header callback：收集所有 response headers ──────────────
-static size_t McpHeaderCallback(char* buffer, size_t size, size_t nitems, void* userData) {
-    std::string* output = static_cast<std::string*>(userData);
+// 收集 response headers 到字符串
+static size_t McpHeaderCallback(char* buffer, size_t size, size_t nitems, std::string* output) {
     output->append(buffer, size * nitems);
     return size * nitems;
 }
@@ -27,40 +26,36 @@ McpClient::~McpClient() = default;
 
 // ── HTTP POST ─────────────────────────────────────────────────────
 std::string McpClient::httpPost(const std::string& /*path*/, const json& body) {
-    // streamable_http: 直接 POST 到 URL
     std::string url = _cfg.url;
     std::string bodyStr = body.dump();
     std::cout << CLR_CYAN "[MCP] POST " << url << " body=" << bodyStr.substr(0, 200) << CLR_RESET << std::endl;
 
     CURL* curl = curl_easy_init();
     if (!curl) {
-        std::cerr << CLR_RED "[MCP] curl_easy_init failed for " << _cfg.name << CLR_RESET << std::endl;
+        std::cerr << CLR_RED "[MCP] curl init failed for " << _cfg.name << CLR_RESET << std::endl;
         return "";
     }
 
     std::string responseBody;
-    std::string rawHeaders; // 收集完整的 response headers
+    std::string rawHeaders; // 收集 response headers
     struct curl_slist* headers = nullptr;
     headers = curl_slist_append(headers, "Content-Type: application/json");
     curl_slist_append(headers, "Accept: application/json, text/event-stream");
 
-    // 自定义 headers（优先于 api_key）
+    // 自定义 headers
     for (const auto& [k, v] : _cfg.headers) {
         if (!v.empty())
             headers = curl_slist_append(headers, (k + ": " + v).c_str());
     }
 
-    // 如果 headers 里没有 Authorization 且 api_key 非空，自动添加
+    // Bearer token
     if (!_cfg.api_key.empty() && _cfg.headers.count("Authorization") == 0) {
         headers = curl_slist_append(headers, ("Authorization: Bearer " + _cfg.api_key).c_str());
     }
 
-    // 已有 session-id 后，后续请求必须携带
+    // 携带 session-id（如果有）
     if (!_sessionId.empty()) {
         headers = curl_slist_append(headers, ("mcp-session-id: " + _sessionId).c_str());
-        std::cout << CLR_YELLOW "[MCP] sending with session-id: " << _sessionId << CLR_RESET << std::endl;
-    } else {
-        std::cout << CLR_YELLOW "[MCP] NO session-id for this request" << CLR_RESET << std::endl;
     }
 
     curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
@@ -69,30 +64,26 @@ std::string McpClient::httpPost(const std::string& /*path*/, const json& body) {
     curl_easy_setopt(curl, CURLOPT_POSTFIELDSIZE, bodyStr.size());
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, McpWriteCallback);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
-
-    // 收集 response headers
     curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, McpHeaderCallback);
     curl_easy_setopt(curl, CURLOPT_HEADERDATA, &rawHeaders);
-
     curl_easy_setopt(curl, CURLOPT_TIMEOUT, 60L);
 
     CURLcode res = curl_easy_perform(curl);
     curl_slist_free_all(headers);
     curl_easy_cleanup(curl);
 
-    // 从 response headers 提取 mcp-session-id
+    // 从 response headers 提取 mcp-session-id（大小写不敏感）
     if (!rawHeaders.empty() && _sessionId.empty()) {
         std::string lowerH = rawHeaders;
         std::transform(lowerH.begin(), lowerH.end(), lowerH.begin(),
             [](unsigned char c) { return std::tolower(c); });
-        const std::string key = "\nmcp-session-id:";
+        const std::string key = "mcp-session-id:";
         auto pos = lowerH.find(key);
         if (pos != std::string::npos) {
             pos += key.size();
             while (pos < lowerH.size() && (lowerH[pos] == ' ' || lowerH[pos] == '\t')) ++pos;
             size_t end = lowerH.find('\n', pos);
             if (end == std::string::npos) end = lowerH.size();
-            // 去掉 \r
             std::string val = rawHeaders.substr(pos, end - pos);
             while (!val.empty() && (val.back() == '\r' || val.back() == ' ')) val.pop_back();
             _sessionId = val;
@@ -123,10 +114,9 @@ json McpClient::sendRequest(const std::string& method, const json& params) {
     };
 
     std::string raw = httpPost("", req);
-
     if (raw.empty()) return json::object();
 
-    // 处理 SSE：可能有多条事件，取最后一条 data
+    // SSE：取最后一条 data
     if (raw.find("data:") != std::string::npos) {
         std::string lastData;
         size_t pos = 0;
@@ -173,7 +163,7 @@ bool McpClient::initialize() {
         return false;
     }
 
-    // 兜底：从 response body 的 result 中提取 sessionId（部分服务端放这里）
+    // 兜底：从 response body 的 result 中提取 sessionId
     if (_sessionId.empty() && resp.contains("result")) {
         if (resp["result"].contains("sessionId"))
             _sessionId = resp["result"]["sessionId"].get<std::string>();
@@ -184,7 +174,7 @@ bool McpClient::initialize() {
         std::cout << CLR_RED "[MCP] WARNING: no session-id received from server!" << CLR_RESET << std::endl;
     }
 
-    // 发送 initialized 通知（不需要 response）
+    // 发送 initialized 通知
     sendRequest("notifications/initialized", json::object());
 
     _initialized = true;
@@ -224,7 +214,6 @@ std::string McpClient::callTool(const std::string& toolName, const json& args) {
         return "[MCP 调用失败]";
     }
 
-    // 提取 text content
     const auto& content = resp["result"]["content"];
     if (content.is_array()) {
         std::string result;
