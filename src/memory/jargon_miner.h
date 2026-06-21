@@ -5,8 +5,8 @@
 #include <set>
 #include <mutex>
 #include <nlohmann/json.hpp>
-#include "memory/jargon_data_model.h"
-#include "bot/deepseek.h"
+#include "src/memory/jargon_data_model.h"
+#include "src/bot/deepseek.h"
 #include <curl/curl.h>
 
 using json = nlohmann::json;

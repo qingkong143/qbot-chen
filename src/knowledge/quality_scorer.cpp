@@ -1,5 +1,5 @@
-#include "knowledge/quality_scorer.h"
-#include "infra/logger.h"
+#include "src/knowledge/quality_scorer.h"
+#include "src/infra/logger.h"
 #include <cmath>
 #include <algorithm>
 #include <chrono>

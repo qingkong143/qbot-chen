@@ -1,6 +1,6 @@
-#include "mcp/mcp_client.h"
-#include "core/config.h"
-#include "bot/deepseek.h"
+#include "src/mcp/mcp_client.h"
+#include "src/core/config.h"
+#include "src/bot/deepseek.h"
 #include <curl/curl.h>
 #include <iostream>
 
@@ -68,6 +68,9 @@ std::string McpClient::httpPost(const std::string& /*path*/, const json& body) {
     curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
     std::cout << CLR_CYAN "[MCP] HTTP " << http_code << " body=" << responseBody.substr(0, 500) << CLR_RESET << std::endl;
     return responseBody;
+}
+
+// ── JSON-RPC 请求 ─────────────────────────────────────────────────
 json McpClient::sendRequest(const std::string& method, const json& params) {
     std::lock_guard<std::mutex> lock(_mutex);
 

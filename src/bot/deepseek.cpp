@@ -1,5 +1,5 @@
-﻿#include "bot/deepseek.h"
-#include "core/config.h"
+﻿#include "src/bot/deepseek.h"
+#include "src/core/config.h"
 
 size_t Deepseek::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {
     size_t totalSize = size * nmemb;

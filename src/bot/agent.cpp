@@ -1,8 +1,8 @@
-﻿#include "bot/agent.h"
-#include "core/config.h"
-#include "memory/style_cache.h"
-#include "memory/memory.h"
-#include "memory/long_memory.h"
+﻿#include "src/bot/agent.h"
+#include "src/core/config.h"
+#include "src/memory/style_cache.h"
+#include "src/memory/memory.h"
+#include "src/memory/long_memory.h"
 #include <algorithm>
 #include <cstdlib>
 

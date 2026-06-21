@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "core/base.h"
-#include "bot/deepseek.h"
+#include "src/core/base.h"
+#include "src/bot/deepseek.h"
 
 class Models {
 public:

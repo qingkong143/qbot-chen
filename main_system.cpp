@@ -1,7 +1,7 @@
 ﻿#include "main_system.h"
-#include "logger.h"
-#include "config.h"
-#include "persistence.h"
+#include "src/infra/logger.h"
+#include "src/core/config.h"
+#include "src/plugin/persistence.h"
 #include <thread>
 #include <chrono>
 #include <signal.h>

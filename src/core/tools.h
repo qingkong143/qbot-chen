@@ -1,7 +1,7 @@
 #pragma once
 
-#include "core/base.h"
-#include "core/math.h"
+#include "src/core/base.h"
+#include "src/core/math.h"
 #include <unordered_map>
 
 using json = nlohmann::json;

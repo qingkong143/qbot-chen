@@ -1,5 +1,5 @@
-#include "plugin/plugin_base.h"
-#include "infra/logger.h"
+#include "src/plugin/plugin_base.h"
+#include "src/infra/logger.h"
 
 // ──────────────────────────────────────────────────────
 // MaiBotPlugin 实现

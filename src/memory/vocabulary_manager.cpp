@@ -1,8 +1,8 @@
-#include "memory/vocabulary_manager.h"
-#include "memory/style_learner.h"
-#include "memory/jargon_miner.h"
-#include "memory/style_cache.h"
-#include "infra/logger.h"
+#include "src/memory/vocabulary_manager.h"
+#include "src/memory/style_learner.h"
+#include "src/memory/jargon_miner.h"
+#include "src/memory/style_cache.h"
+#include "src/infra/logger.h"
 
 VocabularyManager& VocabularyManager::get() {
     static VocabularyManager instance;

@@ -1,7 +1,9 @@
-#include "plugin/plugin_loader.h"
-#include "core/config.h"
+#include "src/plugin/plugin_loader.h"
+#include "src/core/config.h"
 #include <iostream>
+#ifndef _WIN32
 #include <dlfcn.h>
+#endif
 #include <nlohmann/json.hpp>
 #include <fstream>
 

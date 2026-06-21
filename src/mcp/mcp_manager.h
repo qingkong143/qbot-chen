@@ -1,12 +1,12 @@
 #pragma once
 
-#include "core/base.h"
+#include "src/core/base.h"
 #include <vector>
 #include <string>
 #include <unordered_map>
 #include <mutex>
 #include <memory>
-#include "mcp/mcp_client.h"
+#include "src/mcp/mcp_client.h"
 
 using json = nlohmann::json;
 

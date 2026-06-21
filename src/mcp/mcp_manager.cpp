@@ -1,6 +1,6 @@
-#include "mcp/mcp_manager.h"
-#include "core/config.h"
-#include "core/tools.h"
+#include "src/mcp/mcp_manager.h"
+#include "src/core/config.h"
+#include "src/core/tools.h"
 #include <iostream>
 #include <sstream>
 

@@ -1,4 +1,4 @@
-#include "core/config.h"
+#include "src/core/config.h"
 #include <fstream>
 #include <iostream>
 

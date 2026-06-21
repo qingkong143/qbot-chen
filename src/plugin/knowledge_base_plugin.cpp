@@ -1,5 +1,5 @@
-﻿#include "plugin/knowledge_base_plugin.h"
-#include "infra/logger.h"
+﻿#include "src/plugin/knowledge_base_plugin.h"
+#include "src/infra/logger.h"
 #include <ctime>
 #include <sstream>
 

@@ -12,14 +12,22 @@ find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(SQLite3 REQUIRED)
 
-include(FetchContent)
-FetchContent_Declare(
-    ixwebsocket
-    GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
-    GIT_TAG        master
-    GIT_SHALLOW    TRUE
-)
-FetchContent_MakeAvailable(ixwebsocket)
+# ixwebsocket：系统包优先，回退 FetchContent
+find_package(ixwebsocket QUIET)
+if(NOT ixwebsocket_FOUND)
+    message(STATUS "ixwebsocket not found, trying FetchContent...")
+    include(FetchContent)
+    FetchContent_Declare(
+        ixwebsocket
+        GIT_REPOSITORY https://github.com/machinezone/IXWebSocket.git
+        GIT_TAG        master
+        GIT_SHALLOW    TRUE
+    )
+    FetchContent_MakeAvailable(ixwebsocket)
+    find_package(ixwebsocket REQUIRED)
+else()
+    message(STATUS "Using system ixwebsocket")
+endif()
 
 # ── 共享链接依赖 ──────────────────────────
 add_library(qbot_chen_deps INTERFACE)
@@ -30,6 +38,9 @@ target_link_libraries(qbot_chen_deps INTERFACE
     SQLite::SQLite3
     ixwebsocket::ixwebsocket
 )
+if(WIN32)
+    target_link_libraries(qbot_chen_deps INTERFACE bcrypt)
+endif()
 
 # ── 共享代码（OBJECT 库） ──────────────────
 add_library(qbot_chen_obj OBJECT
@@ -116,9 +127,10 @@ target_link_libraries(qbot_chen_test PRIVATE qbot_chen_deps)
 add_test(NAME qbot_chen_unit_tests COMMAND qbot_chen_test)
 
 # ── 编译选项 ──────────────────────────────
+# CMAKE_BUILD_TYPE 控制优化等级，此处只加告警选项
 target_compile_options(qbot_chen_obj PRIVATE
-    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra -O2>
-    $<$<CXX_COMPILER_ID:MSVC>:/W4 /O2 /utf-8>
+    $<$<CXX_COMPILER_ID:GNU,Clang>:-Wall -Wextra>
+    $<$<CXX_COMPILER_ID:MSVC>:/W4 /utf-8>
 )
 target_compile_definitions(qbot_chen_obj PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:NOMINMAX>

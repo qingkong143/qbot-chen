@@ -1,4 +1,4 @@
-#include "knowledge/query_cache.h"
+#include "src/knowledge/query_cache.h"
 
 QueryCache& QueryCache::get() {
     static QueryCache instance;

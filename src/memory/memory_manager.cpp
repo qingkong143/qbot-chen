@@ -1,6 +1,6 @@
-#include "memory/memory_manager.h"
-#include "memory/jargon_miner.h"
-#include "memory/style_cache.h"
+#include "src/memory/memory_manager.h"
+#include "src/memory/jargon_miner.h"
+#include "src/memory/style_cache.h"
 #include <iostream>
 #include <thread>
 

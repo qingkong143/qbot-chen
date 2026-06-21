@@ -1,7 +1,7 @@
 #pragma once
-#include "core/base.h"
-#include "memory/jargon_data_model.h"
-#include "bot/deepseek.h"
+#include "src/core/base.h"
+#include "src/memory/jargon_data_model.h"
+#include "src/bot/deepseek.h"
 #include <string>
 #include <vector>
 

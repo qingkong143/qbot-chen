@@ -1,5 +1,5 @@
-#include "core/command.h"
-#include "core/config.h"
+#include "src/core/command.h"
+#include "src/core/config.h"
 #include <chrono>
 #include <ctime>
 #include <sstream>

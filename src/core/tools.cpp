@@ -1,5 +1,5 @@
-﻿#include "core/tools.h"
-#include "core/config.h"
+﻿#include "src/core/tools.h"
+#include "src/core/config.h"
 #include <chrono>
 #include <ctime>
 #include <iomanip>

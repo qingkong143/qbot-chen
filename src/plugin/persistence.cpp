@@ -1,5 +1,5 @@
-﻿#include "plugin/persistence.h"
-#include "infra/logger.h"
+﻿#include "src/plugin/persistence.h"
+#include "src/infra/logger.h"
 #include <filesystem>
 #include <fstream>
 
@@ -20,7 +20,7 @@ JSONFilePersistence::~JSONFilePersistence() {
 }
 
 std::string JSONFilePersistence::get_file_path(const std::string& key) {
-    // key 格式: "plugin/subkey" -> "./data/plugin/subkey.json"
+    // key 格式: "src/plugin/subkey" -> "./data/plugin/subkey.json"
     size_t pos = key.rfind('/');
     if (pos != std::string::npos) {
         std::string dir = _base_dir + "/" + key.substr(0, pos);

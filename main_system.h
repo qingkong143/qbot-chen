@@ -1,10 +1,10 @@
 #pragma once
 
-#include "base.h"
-#include "plugin_base.h"
-#include "process_manager.h"
-#include "builtin_plugins.h"
-#include "persistence.h"
+#include "src/core/base.h"
+#include "src/plugin/plugin_base.h"
+#include "src/plugin/process_manager.h"
+#include "src/plugin/builtin_plugins.h"
+#include "src/plugin/persistence.h"
 #include <memory>
 
 // ──────────────────────────────────────────────────────

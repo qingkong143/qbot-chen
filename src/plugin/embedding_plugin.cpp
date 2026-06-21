@@ -1,6 +1,6 @@
-﻿#include "plugin/embedding_plugin.h"
-#include "infra/logger.h"
-#include "core/config.h"
+﻿#include "src/plugin/embedding_plugin.h"
+#include "src/infra/logger.h"
+#include "src/core/config.h"
 
 // ──────────────────────────────────────────────────────
 // EmbeddingSystemConfig 实现

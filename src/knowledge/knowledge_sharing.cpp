@@ -1,6 +1,6 @@
-#include "knowledge/knowledge_sharing.h"
-#include "knowledge/embedding_store.h"
-#include "infra/logger.h"
+#include "src/knowledge/knowledge_sharing.h"
+#include "src/knowledge/embedding_store.h"
+#include "src/infra/logger.h"
 
 KnowledgeSharing& KnowledgeSharing::get() {
     static KnowledgeSharing instance;

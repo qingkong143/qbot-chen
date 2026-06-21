@@ -1,6 +1,6 @@
-#include "knowledge/embedding_service.h"
-#include "core/config.h"
-#include "infra/logger.h"
+#include "src/knowledge/embedding_service.h"
+#include "src/core/config.h"
+#include "src/infra/logger.h"
 #include <curl/curl.h>
 #include <sstream>
 #include <iomanip>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "plugin/plugin_base.h"
+#include "src/plugin/plugin_base.h"
 #include <map>
 #include <memory>
 #include <set>

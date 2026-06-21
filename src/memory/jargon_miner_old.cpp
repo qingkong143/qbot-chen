@@ -1,5 +1,5 @@
-#include "memory/jargon_miner.h"
-#include "core/base.h"
+#include "src/memory/jargon_miner.h"
+#include "src/core/base.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>

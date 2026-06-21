@@ -1,5 +1,5 @@
-﻿#include "plugin/builtin_plugins.h"
-#include "infra/logger.h"
+﻿#include "src/plugin/builtin_plugins.h"
+#include "src/infra/logger.h"
 
 BuiltinPluginLoader& BuiltinPluginLoader::get() {
     static BuiltinPluginLoader instance;

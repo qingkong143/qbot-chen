@@ -1,7 +1,7 @@
-﻿#include "core/base.h"
-#include "core/config.h"
-#include "bot/agent.h"
-#include "bot/napcat_bot.h"
+﻿#include "src/core/base.h"
+#include "src/core/config.h"
+#include "src/bot/agent.h"
+#include "src/bot/napcat_bot.h"
 #include <curl/curl.h>
 
 int main() {

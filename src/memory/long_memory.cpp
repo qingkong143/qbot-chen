@@ -1,6 +1,6 @@
-#include "memory/long_memory.h"
-#include "core/config.h"
-#include "bot/models.h"
+#include "src/memory/long_memory.h"
+#include "src/core/config.h"
+#include "src/bot/models.h"
 #include <sqlite3.h>
 
 namespace {

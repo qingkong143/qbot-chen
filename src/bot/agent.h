@@ -1,10 +1,10 @@
 ﻿#pragma once
-#include "core/base.h"
-#include "bot/models.h"
-#include "core/tools.h"
-#include "memory/jargon_miner.h"
-#include "infra/reply_optimizer.h"
-#include "infra/message_deduplicator.h"
+#include "src/core/base.h"
+#include "src/bot/models.h"
+#include "src/core/tools.h"
+#include "src/memory/jargon_miner.h"
+#include "src/infra/reply_optimizer.h"
+#include "src/infra/message_deduplicator.h"
 #include <functional>
 #include <set>
 #include <string>

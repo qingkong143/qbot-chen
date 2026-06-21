@@ -1,7 +1,7 @@
-﻿#include "infra/cleanup_manager.h"
-#include "knowledge/embedding_store.h"
-#include "memory/jargon_miner.h"
-#include "infra/logger.h"
+﻿#include "src/infra/cleanup_manager.h"
+#include "src/knowledge/embedding_store.h"
+#include "src/memory/jargon_miner.h"
+#include "src/infra/logger.h"
 #include <thread>
 #include <chrono>
 #include <filesystem>

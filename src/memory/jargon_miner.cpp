@@ -1,6 +1,6 @@
-#include "memory/jargon_miner.h"
-#include "memory/jargon_inference.h"
-#include "infra/logger.h"
+#include "src/memory/jargon_miner.h"
+#include "src/memory/jargon_inference.h"
+#include "src/infra/logger.h"
 #include <fstream>
 #include <sstream>
 #include <algorithm>

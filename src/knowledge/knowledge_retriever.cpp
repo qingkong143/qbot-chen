@@ -1,8 +1,8 @@
-#include "knowledge/knowledge_retriever.h"
-#include "knowledge/embedding_service.h"
-#include "knowledge/embedding_store.h"
-#include "memory/jargon_miner.h"
-#include "infra/logger.h"
+#include "src/knowledge/knowledge_retriever.h"
+#include "src/knowledge/embedding_service.h"
+#include "src/knowledge/embedding_store.h"
+#include "src/memory/jargon_miner.h"
+#include "src/infra/logger.h"
 #include <algorithm>
 #include <regex>
 

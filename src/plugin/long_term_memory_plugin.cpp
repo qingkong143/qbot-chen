@@ -1,5 +1,5 @@
-﻿#include "plugin/long_term_memory_plugin.h"
-#include "infra/logger.h"
+﻿#include "src/plugin/long_term_memory_plugin.h"
+#include "src/infra/logger.h"
 #include <ctime>
 #include <sstream>
 #include <cmath>

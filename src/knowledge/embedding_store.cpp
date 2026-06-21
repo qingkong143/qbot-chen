@@ -1,6 +1,6 @@
-#include "knowledge/embedding_store.h"
-#include "knowledge/embedding_service.h"
-#include "infra/logger.h"
+#include "src/knowledge/embedding_store.h"
+#include "src/knowledge/embedding_service.h"
+#include "src/infra/logger.h"
 #include <fstream>
 #include <sstream>
 #include <cmath>

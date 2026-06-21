@@ -1,8 +1,8 @@
 #pragma once
 
-#include "plugin/plugin_base.h"
-#include "knowledge/embedding_service.h"
-#include "knowledge/embedding_store.h"
+#include "src/plugin/plugin_base.h"
+#include "src/knowledge/embedding_service.h"
+#include "src/knowledge/embedding_store.h"
 #include <memory>
 
 using json = nlohmann::json;

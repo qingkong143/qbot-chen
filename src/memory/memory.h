@@ -1,5 +1,5 @@
 #pragma once
-#include "core/base.h"
+#include "src/core/base.h"
 
 // ── SQLite 持久化记忆（单例） ──────────────────
 class Memory {

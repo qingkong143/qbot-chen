@@ -1,7 +1,7 @@
-﻿#include "infra/database_migrator.h"
-#include "memory/jargon_miner.h"
-#include "knowledge/embedding_store.h"
-#include "infra/logger.h"
+﻿#include "src/infra/database_migrator.h"
+#include "src/memory/jargon_miner.h"
+#include "src/knowledge/embedding_store.h"
+#include "src/infra/logger.h"
 #include <fstream>
 #include <filesystem>
 #include <ctime>

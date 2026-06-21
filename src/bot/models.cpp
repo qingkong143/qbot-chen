@@ -1,5 +1,5 @@
-#include "bot/models.h"
-#include "core/config.h"
+#include "src/bot/models.h"
+#include "src/core/config.h"
 #include <curl/curl.h>
 
 static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* output) {

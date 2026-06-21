@@ -1,4 +1,4 @@
-#include "memory/memory.h"
+#include "src/memory/memory.h"
 #include <sqlite3.h>
 
 namespace {

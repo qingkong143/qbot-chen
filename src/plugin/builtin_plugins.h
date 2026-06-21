@@ -1,11 +1,11 @@
 #pragma once
 
-#include "plugin/plugin_base.h"
-#include "plugin/embedding_plugin.h"
-#include "plugin/knowledge_base_plugin.h"
-#include "plugin/command_handler_plugin.h"
-#include "plugin/long_term_memory_plugin.h"
-#include "plugin/user_management_plugin.h"
+#include "src/plugin/plugin_base.h"
+#include "src/plugin/embedding_plugin.h"
+#include "src/plugin/knowledge_base_plugin.h"
+#include "src/plugin/command_handler_plugin.h"
+#include "src/plugin/long_term_memory_plugin.h"
+#include "src/plugin/user_management_plugin.h"
 #include <vector>
 #include <memory>
 

@@ -1,6 +1,6 @@
-#include "bot/image_ocr_service.h"
-#include "core/config.h"
-#include "infra/logger.h"
+#include "src/bot/image_ocr_service.h"
+#include "src/core/config.h"
+#include "src/infra/logger.h"
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 #include <sstream>

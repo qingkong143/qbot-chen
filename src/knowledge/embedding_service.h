@@ -1,8 +1,10 @@
 #pragma once
+#include "src/core/base.h"
 #include <string>
 #include <vector>
 #include <memory>
 #include <unordered_map>
+#include <mutex>
 #include <nlohmann/json.hpp>
 
 using json = nlohmann::json;

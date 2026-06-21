@@ -4,7 +4,7 @@
 #include <map>
 #include <memory>
 #include <functional>
-#include "infra/event_bus.h"
+#include "src/infra/event_bus.h"
 
 // 插件接口
 class IPlugin {
