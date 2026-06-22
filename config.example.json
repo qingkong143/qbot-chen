@@ -45,8 +45,8 @@
   "mcp_servers": [
     {
       "name": "fetch",
-      "url": "https://mcp.api-inference.modelscope.net/xxx/mcp",
-      "transport": "streamable_http",
+      "url": "https://mcp.api-inference.modelscope.net/sse",
+      "type": "sse",
       "headers": {
         "Authorization": "Bearer your-api-key"
       },

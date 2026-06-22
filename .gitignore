@@ -6,6 +6,7 @@ bin/
 obj/
 .claude/
 .codegraph/
+cpp-mcp-main/
 *.o
 *.obj
 *.exe

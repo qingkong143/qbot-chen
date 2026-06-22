@@ -129,7 +129,7 @@ static const char* CONFIG_TEMPLATE = R"JSON(
         {
             "name": "fetch",
             "url": "https://mcp.api-inference.modelscope.net/xxx/mcp",
-            "transport": "streamable_http",
+            "type": "sse",
             "headers": {
                 "Authorization": "Bearer your-api-key"
             },
@@ -428,7 +428,7 @@ void Config::load(const std::string& path) {
             McpServerEntry e;
             e.name = json_str(s, "name");
             e.url = json_str(s, "url");
-            e.transport = json_str(s, "transport", "streamable_http");
+            e.type = json_str(s, "type", "sse");
             e.api_key = json_str(s, "api_key");
             if (s.contains("headers") && s["headers"].is_object()) {
                 for (auto& [k, v] : s["headers"].items()) {

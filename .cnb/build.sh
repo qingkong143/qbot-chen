@@ -54,7 +54,7 @@ cd "$BUILD_DIR"
 cmake "$SCRIPT_DIR" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr/local \
-    -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wno-unused-parameter -O2"
+    -DCMAKE_CXX_FLAGS="-Wall -Wextra -Wno-unused-parameter -O2 -DCPPHTTPLIB_OPENSSL_SUPPORT -DMCP_SSL"
 
 make -j$(nproc)
 

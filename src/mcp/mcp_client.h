@@ -1,63 +1,138 @@
-#pragma once
+/**
+ * @file mcp_client.h
+ * @brief MCP Client interface
+ * 
+ * This file defines the interface for the Model Context Protocol clients.
+ * Follows the 2025-03-26 protocol specification.
+ */
 
-#include "src/core/base.h"
+#ifndef MCP_CLIENT_H
+#define MCP_CLIENT_H
+
+#include "mcp_message.h"
+#include "mcp_tool.h"
+#include "mcp_logger.h"
+
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <functional>
-#include <mutex>
 #include <memory>
 
-using json = nlohmann::json;
+namespace mcp {
 
-#include <map>
-
-// MCP Server 配置
-struct McpServerConfig {
-    std::string name;                          // 唯一标识（如 "fetch"）
-    std::string url;                           // 服务器地址
-    std::string transport = "streamable_http"; // stdio | streamable_http | sse
-    std::string api_key;                       // 可选：Bearer token（留空则不加）
-    std::map<std::string, std::string> headers; // 任意自定义 HTTP 头
-    bool enabled = true;
-};
-
-// 单个 MCP 工具定义（与 OpenAI function calling 格式对齐）
-struct McpTool {
-    std::string name;
-    std::string description;
-    json parameters;   // JSON Schema
-    std::string server; // 来源 server 名
-};
-
-// MCP 客户端：通过 JSON-RPC 2.0 与远程 MCP Server 通信
-class McpClient {
+/**
+ * @class client
+ * @brief Abstract interface for MCP clients
+ * 
+ * The client class defines the interface for all MCP client implementations,
+ * regardless of the transport mechanism used (HTTP/SSE, stdio, etc.).
+ */
+class client {
 public:
-    explicit McpClient(McpServerConfig cfg);
-    ~McpClient();
+    /**
+     * @brief Virtual destructor
+     */
+    virtual ~client() = default;
+    
+    /**
+     * @brief Initialize the connection with the server
+     * @param client_name The name of the client
+     * @param client_version The version of the client
+     * @return True if initialization was successful
+     */
+    virtual bool initialize(const std::string& client_name, const std::string& client_version) = 0;
 
-    // 连接并初始化（发送 initialize + initialized）
-    bool initialize();
+    /**
+     * @brief Ping request
+     * @return True if the server is alive
+     */
+    virtual bool ping() = 0;
+    
+    /**
+     * @brief Set client capabilities
+     * @param capabilities The capabilities of the client
+     */
+    virtual void set_capabilities(const json& capabilities) = 0;
+    
+    /**
+     * @brief Send a request and wait for a response
+     * @param method The method to call
+     * @param params The parameters to pass
+     * @return The response
+     * @throws mcp_exception on error
+     */
+    virtual response send_request(const std::string& method, const json& params = json::object()) = 0;
+    
+    /**
+     * @brief Send a notification (no response expected)
+     * @param method The method to call
+     * @param params The parameters to pass
+     * @throws mcp_exception on error
+     */
+    virtual void send_notification(const std::string& method, const json& params = json::object()) = 0;
+    
+    /**
+     * @brief Get server capabilities
+     * @return The server capabilities
+     * @throws mcp_exception on error
+     */
+    virtual json get_server_capabilities() = 0;
+    
+    /**
+     * @brief Call a tool
+     * @param tool_name The name of the tool to call
+     * @param arguments The arguments to pass to the tool
+     * @return The result of the tool call
+     * @throws mcp_exception on error
+     */
+    virtual json call_tool(const std::string& tool_name, const json& arguments = json::object()) = 0;
+    
+    /**
+     * @brief Get available tools
+     * @return List of available tools
+     * @throws mcp_exception on error
+     */
+    virtual std::vector<tool> get_tools() = 0;
+    
+    /**
+     * @brief Get client capabilities
+     * @return The client capabilities
+     */
+    virtual json get_capabilities() = 0;
 
-    // 拉取工具列表
-    std::vector<McpTool> listTools();
+    /**
+     * @brief List available resources
+     * @param cursor Optional cursor for pagination
+     * @return List of resources
+     */
+    virtual json list_resources(const std::string& cursor = "") = 0;
 
-    // 调用远程工具
-    std::string callTool(const std::string& toolName, const json& args);
+    /**
+     * @brief Read a resource
+     * @param resource_uri The URI of the resource
+     * @return The resource content
+     */
+    virtual json read_resource(const std::string& resource_uri) = 0;
 
-    const std::string& name() const { return _cfg.name; }
-    bool isConnected() const { return _initialized; }
+    /**
+     * @brief Subscribe to resource changes
+     * @param resource_uri The URI of the resource
+     * @return Subscription result
+     */
+    virtual json subscribe_to_resource(const std::string& resource_uri) = 0;
 
-private:
-    // JSON-RPC 请求/响应
-    json sendRequest(const std::string& method, const json& params = json::object());
+    /**
+     * @brief List resource templates
+     * @return List of resource templates
+     */
+    virtual json list_resource_templates() = 0;
 
-    // HTTP POST（streamable HTTP transport）
-    std::string httpPost(const std::string& path, const json& body);
-
-    McpServerConfig _cfg;
-    int _requestId = 1;
-    mutable std::mutex _mutex;
-    bool _initialized = false;
-    std::string _sessionId; // mcp-session-id
+    /**
+     * @brief Check if the client is running
+     * @return True if the client is running
+     */
+    virtual bool is_running() const = 0;
 };
+
+} // namespace mcp
+
+#endif // MCP_CLIENT_H

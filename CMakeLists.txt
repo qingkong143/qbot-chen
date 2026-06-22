@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+﻿cmake_minimum_required(VERSION 3.14)
 project(qbot_chen LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -11,6 +11,7 @@ find_package(CURL REQUIRED)
 find_package(nlohmann_json REQUIRED)
 find_package(Threads REQUIRED)
 find_package(SQLite3 REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 # ── ixwebsocket：系统包优先，回退 FetchContent ─────────────
 # build.sh 可能已将 ixwebsocket 安装到 /usr/local，先搜这里
@@ -47,6 +48,8 @@ target_link_libraries(qbot_chen_deps INTERFACE
     Threads::Threads
     SQLite::SQLite3
     ixwebsocket::ixwebsocket
+    OpenSSL::SSL
+    OpenSSL::Crypto
 )
 if(WIN32)
     target_link_libraries(qbot_chen_deps INTERFACE bcrypt)
@@ -107,12 +110,14 @@ add_library(qbot_chen_obj OBJECT
     src/infra/perf_monitor.cpp
     src/infra/reply_optimizer.cpp
 
-    # mcp
-    src/mcp/mcp_client.cpp
+    # mcp (cpp-mmp 原版，头文件和源文件都在 src/mcp/ 下)
+    src/mcp/mcp_sse_client.cpp
+    src/mcp/mcp_tool.cpp
+    src/mcp/mcp_message.cpp
     src/mcp/mcp_manager.cpp
 )
 
-# include 路径：只需项目根目录，源码统一使用 "src/..." 前缀包含
+# include 路径：项目根目录即可，cpp-mmp 头文件已在 src/mcp/ 下
 target_include_directories(qbot_chen_obj PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
@@ -147,4 +152,7 @@ target_compile_definitions(qbot_chen_obj PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>:NOMINMAX>
     $<$<CXX_COMPILER_ID:MSVC>:WIN32_LEAN_AND_MEAN>
     $<$<CXX_COMPILER_ID:MSVC>:_CRT_DECLARE_NONSTDC_NAMES=1>
+    $<$<CXX_COMPILER_ID:MSVC>:CPPHTTPLIB_OPENSSL_SUPPORT>
+    $<$<CXX_COMPILER_ID:MSVC>:MCP_SSL>
 )
+

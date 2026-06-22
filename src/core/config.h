@@ -100,7 +100,7 @@ struct NapcatConfig {
 struct McpServerEntry {
     std::string name;
     std::string url;
-    std::string transport = "streamable_http";
+    std::string type = "sse";
     std::string api_key;
     std::map<std::string, std::string> headers; // 任意自定义 HTTP 头
     bool enabled = true;
