@@ -1,0 +1,33 @@
+name: Build (Windows)
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup vcpkg and dependencies
+      uses: lukka/get-cmake@v4
+      with:
+        cmakeVersion: 3.28
+        ninjaVersion: 1.11
+        vcpkgCommitId: latest
+
+    - name: Install dependencies
+      run: vcpkg install openssl:x64-windows nlohmann-json:x64-windows sqlite3:x64-windows
+      shell: pwsh
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake
+      shell: pwsh
+
+    - name: Build
+      run: cmake --build build --config Release
+      shell: pwsh
